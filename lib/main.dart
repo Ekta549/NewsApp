@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       navigatorKey: NavigatorKeys.rootNavigationKey,
-      home: const LandingPage(), // Set the initial route to LandingPage
+      home: const LandingPage(),
       routes: {
         '/home': (context) => const Home(),
       },

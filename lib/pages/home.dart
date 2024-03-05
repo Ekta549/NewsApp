@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:news_application/models/article_model.dart';
 import 'package:news_application/models/category_model.dart';
 import 'package:news_application/models/slider_model.dart';
+import 'package:news_application/pages/article_view.dart';
 import 'package:news_application/services/data.dart';
 import 'package:news_application/services/news.dart';
 import 'package:news_application/services/slider_data.dart';
@@ -80,21 +81,26 @@ class _HomeState extends State<Home> {
                     height: 30.0,
                   ),
                   const Padding(
-                      padding: EdgeInsets.only(left: 10.0, right: 10.0),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Breaking News!",
+                    padding: EdgeInsets.only(left: 10.0, right: 10.0),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Breaking News!",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Text("View All",
                               style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            Text("View All",
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                )),
-                          ])),
+                                decoration: TextDecoration.underline,
+                                decorationColor: Colors.blue,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16.0,
+                                color: Colors.blue,
+                              )),
+                        ]),
+                  ),
                   const SizedBox(
                     height: 20.0,
                   ),
@@ -138,6 +144,10 @@ class _HomeState extends State<Home> {
                           ),
                           Text("View All",
                               style: TextStyle(
+                                decoration: TextDecoration.underline,
+                                decorationColor: Colors.blue,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16.0,
                                 color: Color.fromARGB(255, 141, 168, 189),
                               )),
                         ]),
@@ -148,9 +158,11 @@ class _HomeState extends State<Home> {
                   Container(
                     child: ListView.builder(
                       shrinkWrap: true,
+                      physics: const ClampingScrollPhysics(),
                       itemCount: articles.length,
                       itemBuilder: ((context, index) {
                         return BlogTile(
+                            url: articles[index].url!,
                             desc: articles[index].description!,
                             imageUrl: articles[index].urlToImage!,
                             title: articles[index].title!);
@@ -168,39 +180,36 @@ class _HomeState extends State<Home> {
 
   Widget buildImage(String image, int index, String name) => Container(
         margin: const EdgeInsets.symmetric(horizontal: 5.0),
-        child: Stack(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.asset(
-                image,
-                height: 250,
-                fit: BoxFit.cover,
-                width: MediaQuery.of(context).size.width,
-              ),
-            ),
-            Container(
+        child: Stack(children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.asset(
+              image,
               height: 250,
-              padding: const EdgeInsets.only(left: 10.0),
-              margin: const EdgeInsets.only(top: 130.0),
+              fit: BoxFit.cover,
               width: MediaQuery.of(context).size.width,
-              decoration: const BoxDecoration(
+            ),
+          ),
+          Container(
+            height: 250,
+            padding: const EdgeInsets.only(left: 10.0),
+            margin: const EdgeInsets.only(top: 130.0),
+            width: MediaQuery.of(context).size.width,
+            decoration: const BoxDecoration(
                 color: Colors.black26,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(10),
                   bottomRight: Radius.circular(10),
-                ),
-              ),
-              child: Text(
-                name,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w500),
-              ),
+                )),
+            child: Text(
+              name,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w500),
             ),
-          ],
-        ),
+          ),
+        ]),
       );
   Widget buildIndicator() => AnimatedSmoothIndicator(
         activeIndex: activeIndex,
@@ -213,9 +222,12 @@ class _HomeState extends State<Home> {
 class CategoryTile extends StatelessWidget {
   final String? image;
   final categoryName;
-  const CategoryTile(
-      {Key? key, required this.categoryName, required this.image})
-      : super(key: key);
+
+  const CategoryTile({
+    Key? key,
+    required this.categoryName,
+    required this.image,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -249,7 +261,7 @@ class CategoryTile extends StatelessWidget {
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -266,76 +278,84 @@ class BlogTile extends StatelessWidget {
   final String imageUrl;
   final String title;
   final String desc;
+  final String? url;
   const BlogTile({
     Key? key,
     required this.desc,
     required this.imageUrl,
     required this.title,
+    required this.url,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-        child: Material(
-          elevation: 3.0,
-          borderRadius: BorderRadius.circular(10),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 10.0,
-              horizontal: 5.0,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  child: ClipRRect(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ArticleView(blogUrl: url!)));
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10.0),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Material(
+            elevation: 3.0,
+            borderRadius: BorderRadius.circular(10),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 10.0,
+                horizontal: 5.0,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: CachedNetworkImage(
                       imageUrl: imageUrl,
-                      height: 90,
-                      width: 100,
+                      height: 120,
+                      width: 120,
                       fit: BoxFit.cover,
                     ),
                   ),
-                ),
-                const SizedBox(
-                  width: 8.0,
-                ),
-                Column(children: [
-                  Container(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width / 1.8,
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16.0,
-                        ),
-                      ),
-                    ),
-                  ),
                   const SizedBox(
-                    height: 5.0,
+                    width: 8.0,
                   ),
-                  Container(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width / 1.8,
-                      child: Text(
-                        desc,
-                        style: const TextStyle(
-                          color: Colors.black54,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15.0,
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 1.8,
+                        child: Text(
+                          title,
+                          maxLines: 2,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16.0,
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(
+                        height: 5.0,
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 1.8,
+                        child: Text(
+                          desc,
+                          maxLines: 1,
+                          style: const TextStyle(
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 15.0,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ]),
-              ],
+                ],
+              ),
             ),
           ),
         ),
