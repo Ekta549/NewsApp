@@ -1,14 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+
 import 'package:news_application/models/article_model.dart';
 import 'package:news_application/models/category_model.dart';
 import 'package:news_application/models/slider_model.dart';
 import 'package:news_application/pages/article_view.dart';
+import 'package:news_application/pages/category_news.dart';
 import 'package:news_application/services/data.dart';
 import 'package:news_application/services/news.dart';
-import 'package:news_application/services/slider_data.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:news_application/services/slider_data.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class Home extends StatefulWidget {
@@ -28,7 +30,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     categories = getCategories();
-    sliders = getSlider();
+    getSlider();
     getNews();
     super.initState();
   }
@@ -36,15 +38,23 @@ class _HomeState extends State<Home> {
   getNews() async {
     News newsclass = News();
     await newsclass.getNews();
+
     setState(() {
       _loading = false;
       articles = newsclass.news;
     });
   }
 
+  getSlider() async {
+    SliderRepo slider = SliderRepo();
+    await slider.getSlider();
+    sliders = slider.sliders;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromRGBO(233, 253, 179, 0.824),
       appBar: AppBar(
         title:
             const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -74,6 +84,7 @@ class _HomeState extends State<Home> {
                           return CategoryTile(
                             image: categories[index].image,
                             categoryName: categories[index].categoryName,
+                            url: categories[index].apiEndpoint,
                           );
                         }),
                   ),
@@ -91,14 +102,6 @@ class _HomeState extends State<Home> {
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold),
                           ),
-                          Text("View All",
-                              style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                decorationColor: Colors.blue,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16.0,
-                                color: Colors.blue,
-                              )),
                         ]),
                   ),
                   const SizedBox(
@@ -107,8 +110,8 @@ class _HomeState extends State<Home> {
                   CarouselSlider.builder(
                     itemCount: sliders.length,
                     itemBuilder: (context, index, realIndex) {
-                      String? res = sliders[index].image;
-                      String? res1 = sliders[index].name;
+                      String? res = sliders[index].urlToImage;
+                      String? res1 = sliders[index].title;
 
                       return buildImage(res!, index, res1!);
                     },
@@ -142,14 +145,6 @@ class _HomeState extends State<Home> {
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold),
                           ),
-                          Text("View All",
-                              style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                decorationColor: Colors.blue,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16.0,
-                                color: Color.fromARGB(255, 141, 168, 189),
-                              )),
                         ]),
                   ),
                   const SizedBox(
@@ -159,7 +154,7 @@ class _HomeState extends State<Home> {
                     child: ListView.builder(
                       shrinkWrap: true,
                       physics: const ClampingScrollPhysics(),
-                      itemCount: articles.length,
+                      itemCount: 20,
                       itemBuilder: ((context, index) {
                         return BlogTile(
                             url: articles[index].url!,
@@ -183,11 +178,11 @@ class _HomeState extends State<Home> {
         child: Stack(children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: Image.asset(
-              image,
+            child: CachedNetworkImage(
               height: 250,
               fit: BoxFit.cover,
               width: MediaQuery.of(context).size.width,
+              imageUrl: image,
             ),
           ),
           Container(
@@ -203,6 +198,7 @@ class _HomeState extends State<Home> {
                 )),
             child: Text(
               name,
+              maxLines: 2,
               style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18.0,
@@ -213,7 +209,7 @@ class _HomeState extends State<Home> {
       );
   Widget buildIndicator() => AnimatedSmoothIndicator(
         activeIndex: activeIndex,
-        count: sliders.length,
+        count: 5,
         effect: const ScaleEffect(
             dotWidth: 10, dotHeight: 10, activeDotColor: Colors.blue),
       );
@@ -222,47 +218,60 @@ class _HomeState extends State<Home> {
 class CategoryTile extends StatelessWidget {
   final String? image;
   final categoryName;
+  final String? url;
 
   const CategoryTile({
     Key? key,
     required this.categoryName,
     required this.image,
+    required this.url,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(right: 16),
-      child: Stack(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: Image.asset(
-              image!,
-              width: 120,
-              height: 60,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Container(
-            width: 120,
-            height: 70,
-            decoration: BoxDecoration(
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => CategoryNews(
+                      url: url!,
+                      name: '',
+                    )));
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 16),
+        child: Stack(
+          children: [
+            ClipRRect(
               borderRadius: BorderRadius.circular(6),
-              color: Colors.black38,
+              child: Image.asset(
+                image!,
+                width: 120,
+                height: 60,
+                fit: BoxFit.cover,
+              ),
             ),
-            child: Center(
-              child: Text(
-                categoryName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
+            Container(
+              width: 120,
+              height: 70,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                color: Colors.black38,
+              ),
+              child: Center(
+                child: Text(
+                  categoryName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

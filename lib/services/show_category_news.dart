@@ -1,24 +1,21 @@
 import 'dart:convert';
-import 'package:news_application/models/article_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:news_application/models/show_category.dart';
 
-class News {
-  List<ArticleModel> news = [];
+class ShowCategoryNews {
+  List<ShowCategoryModel> categories = [];
 
-  Future<void> getNews() async {
-    String url =
-        "https://saurav.tech/NewsAPI/top-headlines/category/general/in.json";
+  Future<void> getCategoriesNews(String url, String name) async {
+    print(name);
+
     var response = await http.get(Uri.parse(url));
 
     var jsonData = jsonDecode(response.body);
 
     if (jsonData['status'] == 'ok') {
-      // Clear the news list before adding new articles
-      news.clear();
-
       jsonData["articles"].forEach((element) {
         if (element["urlToImage"] != null && element['description'] != null) {
-          ArticleModel articleModel = ArticleModel(
+          ShowCategoryModel categoryModel = ShowCategoryModel(
             title: element["title"],
             description: element["description"],
             url: element["url"],
@@ -26,7 +23,7 @@ class News {
             content: element["content"],
             author: element["author"],
           );
-          news.add(articleModel);
+          categories.add(categoryModel);
         }
       });
     }

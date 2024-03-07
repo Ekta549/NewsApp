@@ -1,28 +1,34 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:news_application/models/slider_model.dart';
 
-List<SliderModel> getSlider() {
-  List<SliderModel> slider = [];
-  SliderModel categoryModel = SliderModel();
+class SliderRepo {
+  List<SliderModel> sliders = [];
 
-  categoryModel.image = "assets/images/business.jpeg";
-  categoryModel.name = "Bow To The Authority of Silenforce";
-  slider.add(categoryModel);
-  categoryModel = SliderModel();
+  Future<void> getSlider() async {
+    String url =
+        "https://saurav.tech/NewsAPI/top-headlines/category/health/in.json";
+    var response = await http.get(Uri.parse(url));
 
-  categoryModel.image = "assets/images/entertainment.jpeg";
-  categoryModel.name = "Bow To The Authority of Silenforce";
-  slider.add(categoryModel);
-  categoryModel = SliderModel();
+    var jsonData = jsonDecode(response.body);
 
-  categoryModel.image = "assets/images/health.jpeg";
-  categoryModel.name = "Bow To The Authority of Silenforce";
-  slider.add(categoryModel);
-  categoryModel = SliderModel();
+    if (jsonData['status'] == 'ok') {
+      // Clear the news list before adding new articles
+      sliders.clear();
 
-  categoryModel.image = "assets/images/sports.jpeg";
-  categoryModel.name = "Bow To The Authority of Silenforce";
-  slider.add(categoryModel);
-  categoryModel = SliderModel();
-
-  return slider;
+      jsonData["articles"].forEach((element) {
+        if (element["urlToImage"] != null && element['description'] != null) {
+          SliderModel sliderModel = SliderModel(
+            title: element["title"],
+            description: element["description"],
+            url: element["url"],
+            urlToImage: element["urlToImage"],
+            content: element["content"],
+            author: element["author"],
+          );
+          sliders.add(sliderModel);
+        }
+      });
+    }
+  }
 }

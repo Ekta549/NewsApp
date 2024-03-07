@@ -17,16 +17,29 @@ class _ArticleViewState extends State<ArticleView> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
       ..setNavigationDelegate(NavigationDelegate(
-        onProgress: (int progress) {
-          // Update loading bar.
-        },
+        onProgress: (int progress) {},
         onPageStarted: (String url) {},
         onPageFinished: (String url) {},
       ))
       ..loadRequest(Uri.parse(widget.blogUrl));
-    return Container(
-      child: WebViewWidget(
-        controller: controller,
+    return Scaffold(
+      backgroundColor: Color.fromRGBO(233, 253, 179, 0.824),
+      appBar: AppBar(
+        title:
+            const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Text("Flutter"),
+          Text(
+            "News",
+            style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+          ),
+        ]),
+        centerTitle: true,
+        elevation: 0.0,
+      ),
+      body: Container(
+        child: WebViewWidget(
+          controller: controller,
+        ),
       ),
     );
   }

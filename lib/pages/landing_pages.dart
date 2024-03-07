@@ -12,19 +12,20 @@ class _LandinPageState extends State<LandingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromRGBO(233, 253, 179, 0.824),
       body: Container(
-        margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+        margin: const EdgeInsets.symmetric(vertical: 9.0, horizontal: 10.0),
         child: Column(children: [
           Material(
             elevation: 3.0,
             borderRadius: BorderRadius.circular(30),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(40),
               child: Image.asset(
-                "assets/images/building1.jpg",
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height / 1.9,
-                fit: BoxFit.cover,
+                "assets/images/news image.jpg",
+                width: MediaQuery.of(context).size.width / 1.0,
+                height: MediaQuery.of(context).size.height / 1.7,
+                fit: BoxFit.fitWidth,
               ),
             ),
           ),
@@ -48,29 +49,13 @@ class _LandinPageState extends State<LandingPage> {
                 fontSize: 18.0,
                 fontWeight: FontWeight.w500),
           ),
-          const SizedBox(
-            height: 40.0,
-          ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width / 1.2,
-            child: Material(
-              borderRadius: BorderRadius.circular(30),
-              elevation: 5.0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 9.0),
-                decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 73, 162, 236),
-                    borderRadius: BorderRadius.circular(25)),
-                child: Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      NavigatorKeys.rootNavigationKey.currentState
-                          ?.pushReplacementNamed('/home');
-                    },
-                    child: const Text('Get Started'),
-                  ),
-                ),
-              ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                NavigatorKeys.rootNavigationKey.currentState
+                    ?.pushReplacementNamed('/home');
+              },
+              child: const Text('Get Started'),
             ),
           ),
         ]),

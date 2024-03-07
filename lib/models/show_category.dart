@@ -1,4 +1,6 @@
-class SliderModel {
+import 'package:news_application/pages/category_news.dart';
+
+class ShowCategoryModel {
   String? author;
   String? title;
   String? description;
@@ -6,7 +8,7 @@ class SliderModel {
   String? urlToImage;
   String? content;
 
-  SliderModel(
+  ShowCategoryModel(
       {this.author,
       this.content,
       this.description,
