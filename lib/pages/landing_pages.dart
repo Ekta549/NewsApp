@@ -12,7 +12,7 @@ class _LandinPageState extends State<LandingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(233, 253, 179, 0.824),
+      backgroundColor: Colors.white38,
       body: Container(
         margin: const EdgeInsets.symmetric(vertical: 9.0, horizontal: 10.0),
         child: Column(children: [
@@ -35,7 +35,7 @@ class _LandinPageState extends State<LandingPage> {
           const Text(
             "News from around the\n       world for you",
             style: TextStyle(
-                color: Colors.black,
+                color: Colors.white,
                 fontSize: 26.0,
                 fontWeight: FontWeight.bold),
           ),
@@ -45,7 +45,7 @@ class _LandinPageState extends State<LandingPage> {
           const Text(
             "Best time to read, take your time to read\n           a little more of this world",
             style: TextStyle(
-                color: Colors.black45,
+                color: Colors.white,
                 fontSize: 18.0,
                 fontWeight: FontWeight.w500),
           ),

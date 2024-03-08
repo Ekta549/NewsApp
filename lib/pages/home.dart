@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:news_application/pages/saved_article_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:news_application/models/article_model.dart';
 import 'package:news_application/models/category_model.dart';
@@ -11,6 +13,7 @@ import 'package:news_application/services/data.dart';
 import 'package:news_application/services/news.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:news_application/services/slider_data.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class Home extends StatefulWidget {
@@ -54,7 +57,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(233, 253, 179, 0.824),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title:
             const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -288,6 +291,7 @@ class BlogTile extends StatelessWidget {
   final String title;
   final String desc;
   final String? url;
+
   const BlogTile({
     Key? key,
     required this.desc,
@@ -301,9 +305,11 @@ class BlogTile extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ArticleView(blogUrl: url!)));
+          context,
+          MaterialPageRoute(
+            builder: (context) => ArticleView(blogUrl: url!),
+          ),
+        );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 10.0),
@@ -332,36 +338,47 @@ class BlogTile extends StatelessWidget {
                   const SizedBox(
                     width: 8.0,
                   ),
-                  Column(
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 1.8,
-                        child: Text(
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
                           title,
                           maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.w500,
                             fontSize: 16.0,
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 5.0,
-                      ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 1.8,
-                        child: Text(
+                        const SizedBox(
+                          height: 5.0,
+                        ),
+                        Text(
                           desc,
-                          maxLines: 1,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Colors.black54,
                             fontWeight: FontWeight.w500,
                             fontSize: 15.0,
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.share),
+                    onPressed: () {
+                      _shareArticle(context);
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.save),
+                    onPressed: () {
+                      _saveArticle(context, url);
+                    },
                   ),
                 ],
               ),
@@ -370,5 +387,35 @@ class BlogTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _shareArticle(BuildContext context) {
+    Share.share(url ?? '', subject: title);
+  }
+
+  void _saveArticle(BuildContext context, String? articleUrl) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? savedArticles = prefs.getStringList('saved_articles') ?? [];
+    if (!savedArticles.contains(articleUrl)) {
+      savedArticles.add(articleUrl!);
+      prefs.setStringList('saved_articles', savedArticles);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Article saved for later.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Article is already saved.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SavedArticlesPage()),
+      );
+    }
   }
 }
