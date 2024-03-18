@@ -4,7 +4,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 class ArticleView extends StatefulWidget {
   final String blogUrl;
 
-  const ArticleView({super.key, required this.blogUrl});
+  const ArticleView({super.key, required this.blogUrl, required String url});
 
   @override
   State<ArticleView> createState() => _ArticleViewState();
@@ -23,7 +23,7 @@ class _ArticleViewState extends State<ArticleView> {
       ))
       ..loadRequest(Uri.parse(widget.blogUrl));
     return Scaffold(
-      backgroundColor: Color.fromRGBO(233, 253, 179, 0.824),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title:
             const Row(mainAxisAlignment: MainAxisAlignment.center, children: [

@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:news_application/models/show_category.dart';
 import 'package:news_application/pages/article_view.dart';
 import 'package:news_application/services/show_category_news.dart';
@@ -37,7 +36,7 @@ class _CategoryNewsState extends State<CategoryNews> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(233, 253, 179, 0.824),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
           widget.url,
@@ -79,8 +78,13 @@ class ShowCategory extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ArticleView(blogUrl: url)));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ArticleView(
+                      blogUrl: url,
+                      url: '',
+                    )));
       },
       child: Container(
           child: Column(

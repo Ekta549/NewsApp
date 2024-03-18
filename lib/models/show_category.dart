@@ -1,5 +1,3 @@
-import 'package:news_application/pages/category_news.dart';
-
 class ShowCategoryModel {
   String? author;
   String? title;

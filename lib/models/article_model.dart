@@ -12,5 +12,6 @@ class ArticleModel {
       this.description,
       this.title,
       this.url,
-      this.urlToImage});
+      this.urlToImage,
+      required String imageUrl});
 }

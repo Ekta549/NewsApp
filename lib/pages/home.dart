@@ -1,20 +1,21 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:news_application/pages/saved_article_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:news_application/models/article_model.dart';
 import 'package:news_application/models/category_model.dart';
 import 'package:news_application/models/slider_model.dart';
 import 'package:news_application/pages/article_view.dart';
 import 'package:news_application/pages/category_news.dart';
+import 'package:news_application/pages/saved_article_page.dart';
 import 'package:news_application/services/data.dart';
 import 'package:news_application/services/news.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:news_application/services/slider_data.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -30,12 +31,41 @@ class _HomeState extends State<Home> {
   bool _loading = true;
 
   int activeIndex = 0;
+  String weather = ''; // Weather information
+
   @override
   void initState() {
     categories = getCategories();
     getSlider();
     getNews();
+    fetchWeather();
     super.initState();
+  }
+
+  Future<void> fetchWeather() async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+          'https://api.open-meteo.com/v1/forecast?latitude=12.9716&longitude=77.5946&current=temperature_2m',
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final temperature = data['current']['temperature_2m'];
+        setState(() {
+          weather = 'Temperature: ${temperature.toString()}°C';
+        });
+      } else {
+        setState(() {
+          weather = 'Failed to fetch weather data';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        weather = 'Error: $e';
+      });
+    }
   }
 
   getNews() async {
@@ -59,16 +89,24 @@ class _HomeState extends State<Home> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title:
-            const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text("Flutter"),
-          Text(
-            "News",
-            style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-          )
-        ]),
+        title: const Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text("Flutter"),
+            Text(
+              "News",
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
         centerTitle: true,
         elevation: 0.0,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(weather), // Display weather information here
+          ),
+        ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -80,16 +118,17 @@ class _HomeState extends State<Home> {
                     margin: const EdgeInsets.only(left: 10.0),
                     height: 50,
                     child: ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: categories.length,
-                        itemBuilder: (context, index) {
-                          return CategoryTile(
-                            image: categories[index].image,
-                            categoryName: categories[index].categoryName,
-                            url: categories[index].apiEndpoint,
-                          );
-                        }),
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: categories.length,
+                      itemBuilder: (context, index) {
+                        return CategoryTile(
+                          image: categories[index].image,
+                          categoryName: categories[index].categoryName,
+                          url: categories[index].apiEndpoint,
+                        );
+                      },
+                    ),
                   ),
                   const SizedBox(
                     height: 30.0,
@@ -97,15 +136,15 @@ class _HomeState extends State<Home> {
                   const Padding(
                     padding: EdgeInsets.only(left: 10.0, right: 10.0),
                     child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Breaking News!",
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ]),
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Breaking News!",
+                          style: TextStyle(
+                              color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(
                     height: 20.0,
@@ -113,10 +152,14 @@ class _HomeState extends State<Home> {
                   CarouselSlider.builder(
                     itemCount: sliders.length,
                     itemBuilder: (context, index, realIndex) {
-                      String? res = sliders[index].urlToImage;
-                      String? res1 = sliders[index].title;
+                      if (sliders.isNotEmpty && index < sliders.length) {
+                        String? res = sliders[index].urlToImage;
+                        String? res1 = sliders[index].title;
 
-                      return buildImage(res!, index, res1!);
+                        return buildImage(res!, index, res1!);
+                      } else {
+                        return Container();
+                      }
                     },
                     options: CarouselOptions(
                       height: 200,
@@ -131,7 +174,7 @@ class _HomeState extends State<Home> {
                       },
                     ),
                   ),
-                  const SizedBox(
+                  SizedBox(
                     height: 20.0,
                   ),
                   Center(
@@ -140,15 +183,15 @@ class _HomeState extends State<Home> {
                   const Padding(
                     padding: EdgeInsets.only(left: 10.0, right: 10.0),
                     child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Trending News!",
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ]),
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Trending News!",
+                          style: TextStyle(
+                              color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(
                     height: 10.0,
@@ -160,10 +203,11 @@ class _HomeState extends State<Home> {
                       itemCount: 20,
                       itemBuilder: ((context, index) {
                         return BlogTile(
-                            url: articles[index].url!,
-                            desc: articles[index].description!,
-                            imageUrl: articles[index].urlToImage!,
-                            title: articles[index].title!);
+                          url: articles[index].url!,
+                          desc: articles[index].description!,
+                          imageUrl: articles[index].urlToImage!,
+                          title: articles[index].title!,
+                        );
                       }),
                     ),
                   ),
@@ -210,6 +254,7 @@ class _HomeState extends State<Home> {
           ),
         ]),
       );
+
   Widget buildIndicator() => AnimatedSmoothIndicator(
         activeIndex: activeIndex,
         count: 5,
@@ -307,7 +352,10 @@ class BlogTile extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ArticleView(blogUrl: url!),
+            builder: (context) => ArticleView(
+              blogUrl: url!,
+              url: '',
+            ),
           ),
         );
       },
@@ -369,13 +417,13 @@ class BlogTile extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.share),
+                    icon: const Icon(Icons.share),
                     onPressed: () {
                       _shareArticle(context);
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.save),
+                    icon: const Icon(Icons.save),
                     onPressed: () {
                       _saveArticle(context, url);
                     },
@@ -400,21 +448,21 @@ class BlogTile extends StatelessWidget {
       savedArticles.add(articleUrl!);
       prefs.setStringList('saved_articles', savedArticles);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Article saved for later.'),
           duration: Duration(seconds: 2),
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Article is already saved.'),
           duration: Duration(seconds: 2),
         ),
       );
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => SavedArticlesPage()),
+        MaterialPageRoute(builder: (context) => const SavedArticlesPage()),
       );
     }
   }
