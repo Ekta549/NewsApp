@@ -45,12 +45,11 @@ class LoginPage extends StatelessWidget {
       backgroundColor: Colors.white, // Set background color
       body: SizedBox(
         child: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
-                image: AssetImage(
-                    'assets/images/news login.jpg'), // Replace with your image asset path
-                fit: BoxFit.fill,
-                opacity: 0.8),
+              image: AssetImage('assets/images/news_login1.png'),
+              fit: BoxFit.cover,
+            ),
           ),
           child: Center(
             child: Padding(
@@ -59,11 +58,10 @@ class LoginPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Container(
-                    padding: const EdgeInsets.all(20.0), // Adjust padding here
+                    padding: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0),
-                      color:
-                          Colors.white.withOpacity(0.8), // Adjust opacity here
+                      color: Colors.white.withOpacity(0.8),
                     ),
                     child: Column(
                       children: [
