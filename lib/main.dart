@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:news_application/pages/home.dart';
 import 'package:news_application/pages/landing_pages.dart';
 
@@ -42,7 +41,7 @@ class LoginPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Login'),
       ),
-      backgroundColor: Colors.white, // Set background color
+      backgroundColor: Colors.white,
       body: SizedBox(
         child: Container(
           decoration: const BoxDecoration(
@@ -81,7 +80,7 @@ class LoginPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 20.0,
                         ),
                         Container(
@@ -103,7 +102,7 @@ class LoginPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20.0,
                   ),
                   ElevatedButton(
