@@ -92,10 +92,11 @@ class _HomeState extends State<Home> {
         title: const Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Text("Flutter"),
             Text(
-              "News",
-              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+              "DailyInfo",
+              style: TextStyle(
+                  color: Color.fromARGB(255, 13, 14, 15),
+                  fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -174,7 +175,7 @@ class _HomeState extends State<Home> {
                       },
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20.0,
                   ),
                   Center(
@@ -196,20 +197,15 @@ class _HomeState extends State<Home> {
                   const SizedBox(
                     height: 10.0,
                   ),
-                  Container(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const ClampingScrollPhysics(),
-                      itemCount: 20,
-                      itemBuilder: ((context, index) {
-                        return BlogTile(
-                          url: articles[index].url!,
-                          desc: articles[index].description!,
-                          imageUrl: articles[index].urlToImage!,
-                          title: articles[index].title!,
-                        );
-                      }),
-                    ),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
+                    itemCount: 20,
+                    itemBuilder: ((context, index) {
+                      return BlogTile(
+                        articleModel: articles[index],
+                      );
+                    }),
                   ),
                   const SizedBox(
                     height: 10.0,
@@ -332,17 +328,11 @@ class CategoryTile extends StatelessWidget {
 }
 
 class BlogTile extends StatelessWidget {
-  final String imageUrl;
-  final String title;
-  final String desc;
-  final String? url;
+  final ArticleModel articleModel;
 
   const BlogTile({
     Key? key,
-    required this.desc,
-    required this.imageUrl,
-    required this.title,
-    required this.url,
+    required this.articleModel,
   }) : super(key: key);
 
   @override
@@ -353,7 +343,7 @@ class BlogTile extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => ArticleView(
-              blogUrl: url!,
+              blogUrl: articleModel.url!,
               url: '',
             ),
           ),
@@ -377,7 +367,7 @@ class BlogTile extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: CachedNetworkImage(
-                      imageUrl: imageUrl,
+                      imageUrl: articleModel.urlToImage!,
                       height: 120,
                       width: 120,
                       fit: BoxFit.cover,
@@ -391,7 +381,7 @@ class BlogTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          title,
+                          articleModel.title ?? "",
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -404,7 +394,7 @@ class BlogTile extends StatelessWidget {
                           height: 5.0,
                         ),
                         Text(
-                          desc,
+                          articleModel.content ?? "",
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -416,17 +406,25 @@ class BlogTile extends StatelessWidget {
                       ],
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.share),
-                    onPressed: () {
-                      _shareArticle(context);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.save),
-                    onPressed: () {
-                      _saveArticle(context, url);
-                    },
+                  Column(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.save),
+                        onPressed: () {
+                          _saveArticle(context, articleModel);
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.share),
+                        onPressed: () {
+                          _shareArticle(
+                            context,
+                            articleModel.url,
+                            articleModel.title,
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -437,16 +435,21 @@ class BlogTile extends StatelessWidget {
     );
   }
 
-  void _shareArticle(BuildContext context) {
+  void _shareArticle(BuildContext context, String? url, String? title) {
     Share.share(url ?? '', subject: title);
   }
 
-  void _saveArticle(BuildContext context, String? articleUrl) async {
+  void _saveArticle(BuildContext context, ArticleModel articleModel) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? savedArticles = prefs.getStringList('saved_articles') ?? [];
-    if (!savedArticles.contains(articleUrl)) {
-      savedArticles.add(articleUrl!);
-      prefs.setStringList('saved_articles', savedArticles);
+    List<ArticleModel> savedArticles = prefs
+            .getStringList('saved_articles')
+            ?.map((e) => ArticleModel.fromJson(jsonDecode(e)))
+            .toList() ??
+        [];
+    if (!(savedArticles.any((e) => e.urlToImage == articleModel.urlToImage))) {
+      savedArticles?.add(articleModel);
+      prefs.setStringList('saved_articles',
+          savedArticles!.map((e) => jsonEncode(e.toJson())).toList());
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Article saved for later.'),

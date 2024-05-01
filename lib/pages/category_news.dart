@@ -38,10 +38,11 @@ class _CategoryNewsState extends State<CategoryNews> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
-          widget.url,
-          style:
-              const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+        title: const Text(
+          'NewsUpdates',
+          style: TextStyle(
+              color: Color.fromARGB(255, 21, 22, 23),
+              fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         elevation: 0.0,

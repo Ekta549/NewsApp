@@ -19,9 +19,10 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       navigatorKey: NavigatorKeys.rootNavigationKey,
-      home: const LoginPage(),
+      initialRoute: '/landing', // Set the initial route to landing page
       routes: {
         '/home': (context) => const Home(),
+        '/landing': (context) => const LandingPage(),
       },
     );
   }
@@ -30,97 +31,4 @@ class MyApp extends StatelessWidget {
 class NavigatorKeys {
   static final GlobalKey<NavigatorState> rootNavigationKey =
       GlobalKey<NavigatorState>();
-}
-
-class LoginPage extends StatelessWidget {
-  const LoginPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-      ),
-      backgroundColor: Colors.white,
-      body: SizedBox(
-        child: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/news_login1.png'),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    padding: const EdgeInsets.all(20.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.0),
-                      color: Colors.white.withOpacity(0.8),
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: TextFormField(
-                            cursorColor: Colors.black, // Cursor color
-                            decoration: InputDecoration(
-                              hintText: 'Email',
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.circular(8.0), // Border color
-                              ),
-                              prefixIcon: const Icon(Icons.email),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(vertical: 20.0),
-                          child: TextFormField(
-                            obscureText: true,
-                            decoration: InputDecoration(
-                              hintText: 'Password',
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.circular(8.0), // Border color
-                              ),
-                              prefixIcon: Icon(Icons.lock),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20.0,
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const LandingPage()),
-                      );
-                    },
-                    child: const Text('Login'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
